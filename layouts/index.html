@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Title }}</title>
+  <meta name="description" content="{{ .Params.bio }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+  {{ partial "theme-style.html" . }}
+  {{ partial "analytics.html" . }}
+</head>
+<body>
+  <main class="profile-card">
+    <img class="avatar" src="{{ .Params.foto_perfil | default "/img/perfil.svg" | relURL }}" alt="{{ .Title }}">
+    <h1>{{ .Title }}</h1>
+    <p class="bio">{{ .Params.bio }}</p>
+
+    {{ if or .Params.instagram_url .Params.whatsapp_url .Params.google_avaliacao_url }}
+    <div class="social-icons">
+      {{ with .Params.instagram_url }}
+      <a href="{{ . }}" target="_blank" rel="noopener" aria-label="Instagram">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+      {{ end }}
+      {{ with .Params.whatsapp_url }}
+      <a href="{{ . }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+      {{ end }}
+      {{ with .Params.google_avaliacao_url }}
+      <a href="{{ . }}" target="_blank" rel="noopener" aria-label="Avaliar no Google">
+        <i class="fa-brands fa-google"></i>
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    <div class="links">
+      {{ $produtosSection := .Site.GetPage "produtos" }}
+      {{ if $produtosSection }}
+      <a class="link-card" href="{{ $produtosSection.RelPermalink }}">
+        <i class="fa-solid fa-store"></i>
+        <span>Ver Catálogo</span>
+      </a>
+      {{ end }}
+      {{ $linksSection := .Site.GetPage "links" }}
+      {{ if $linksSection }}
+        {{ range $linksSection.Pages.ByParam "peso" }}
+        <a class="link-card" href="{{ .Params.link_url }}" target="_blank" rel="noopener">
+          {{ if .Params.icone }}<i class="{{ .Params.icone }}"></i>{{ end }}
+          <span>{{ .Title }}</span>
+        </a>
+        {{ end }}
+      {{ end }}
+    </div>
+
+    {{ $ytUrl := .Params.video_youtube_url }}
+    {{ $ytId := "" }}
+    {{ if $ytUrl }}
+      {{ $found := findRE `(?:youtu\.be/|v=)[\w-]{11}` $ytUrl 1 }}
+      {{ if $found }}
+        {{ $ytId = replaceRE `.*(?:youtu\.be/|v=)` "" (index $found 0) }}
+      {{ end }}
+    {{ end }}
+    {{ if $ytId }}
+    <section class="video-section">
+      <h2>Vídeo</h2>
+      {{ with .Params.video_titulo }}<p class="video-caption">{{ . }}</p>{{ end }}
+      <div class="video-embed">
+        <iframe src="https://www.youtube.com/embed/{{ $ytId }}" title="Vídeo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </section>
+    {{ end }}
+
+    {{ $catSection := .Site.GetPage "categorias" }}
+    {{ $activeCatTitles := slice }}
+    {{ if $catSection }}
+      {{ range where $catSection.Pages "Params.ativo" true }}
+        {{ $activeCatTitles = $activeCatTitles | append .Title }}
+      {{ end }}
+    {{ end }}
+
+    {{ $produtosSection := .Site.GetPage "produtos" }}
+    {{ $promoProdutos := slice }}
+    {{ if $produtosSection }}
+      {{ range where $produtosSection.Pages "Params.ativo" true }}
+        {{ if and .Params.em_promocao .Params.preco_promocional .Params.exposicao (in $activeCatTitles .Params.categoria) }}
+          {{ $promoProdutos = $promoProdutos | append . }}
+        {{ end }}
+      {{ end }}
+      {{ $promoProdutos = sort $promoProdutos "Params.peso" }}
+    {{ end }}
+
+    {{ if $promoProdutos }}
+    <section class="promo-section">
+      <h2>🔥 Promoções</h2>
+      <a class="link-card" href="{{ $produtosSection.RelPermalink }}">
+        <i class="fa-solid fa-store"></i>
+        <span>Ver todas as promoções</span>
+      </a>
+      <div class="product-grid">
+        {{ range $promoProdutos }}
+        {{ partial "product-card.html" . }}
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+
+    {{ $galeriaSection := .Site.GetPage "galeria" }}
+    {{ if and $galeriaSection $galeriaSection.Pages }}
+    <section class="galeria-section">
+      <h2>Galeria</h2>
+      <div class="galeria-grid">
+        {{ range sort $galeriaSection.Pages "Params.peso" }}
+        {{ $foto := . }}
+        {{ with $foto.Params.foto }}
+        <figure class="galeria-item">
+          <img src="{{ . | relURL }}" alt="{{ $foto.Params.legenda | default "Foto" }}" loading="lazy">
+          {{ with $foto.Params.legenda }}<figcaption>{{ . }}</figcaption>{{ end }}
+        </figure>
+        {{ end }}
+        {{ end }}
+      </div>
+    </section>
+    {{ end }}
+  </main>
+
+  <footer>
+    <p>Feito com 💛 por {{ .Title }}</p>
+  </footer>
+
+  {{ partial "cart-panel.html" . }}
+
+  <script src="{{ "js/cart.js" | relURL }}"></script>
+</body>
+</html>

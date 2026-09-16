@@ -1,0 +1,274 @@
+media:
+  input: "static/img"
+  output: "/img"
+
+content:
+  - name: "profile"
+    label: "Perfil"
+    type: "file"
+    path: "content/_index.md"
+    format: "yaml-frontmatter"
+    fields:
+      - name: "title"
+        label: "Nome do negócio"
+        type: "string"
+        required: true
+      - name: "bio"
+        label: "Biografia / descrição curta"
+        type: "text"
+      - name: "foto_perfil"
+        label: "Foto de perfil"
+        type: "image"
+      - name: "instagram_url"
+        label: "URL do Instagram"
+        description: "Opcional"
+        type: "string"
+      - name: "whatsapp_url"
+        label: "URL do WhatsApp"
+        description: "Ex: https://wa.me/55SEUNUMERO"
+        type: "string"
+      - name: "google_avaliacao_url"
+        label: "Link para avaliar no Google"
+        description: "Opcional"
+        type: "string"
+      - name: "chave_pix"
+        label: "Chave Pix"
+        description: "Ou Pix copia e cola. Opcional — o botão de Pix só aparece se preenchido"
+        type: "string"
+      - name: "video_youtube_url"
+        label: "Link do vídeo no YouTube"
+        description: "Opcional"
+        type: "string"
+      - name: "video_titulo"
+        label: "Título/legenda do vídeo"
+        description: "Opcional"
+        type: "string"
+      - name: "tema_cor"
+        label: "Tema de cor do site"
+        type: "select"
+        default: "marrom"
+        options:
+          values:
+            - value: "marrom"
+              label: "Marrom/Bege (padrão)"
+            - value: "verde"
+              label: "Verde"
+            - value: "rosa"
+              label: "Rosa"
+            - value: "azul"
+              label: "Azul"
+      - name: "fundo_ativo"
+        label: "Usar imagem de fundo no site"
+        description: "Liga ou desliga a foto de fundo escolhida abaixo"
+        type: "boolean"
+        default: false
+      - name: "fundo_foto"
+        label: "Foto de fundo"
+        description: "Só aparece se a opção acima estiver ligada"
+        type: "image"
+      - name: "fundo_opacidade"
+        label: "Opacidade da camada sobre a imagem de fundo"
+        description: "De 0 (foto bem viva, quase sem filtro) a 100 (foto quase escondida). Sugestão: entre 30 e 55."
+        type: "number"
+        default: 40
+
+  - name: "links"
+    label: "Links"
+    type: "collection"
+    path: "content/links"
+    format: "yaml-frontmatter"
+    view:
+      primary: "title"
+      fields: [title, link_url, peso]
+      default:
+        sort: "peso"
+        order: "asc"
+    fields:
+      - name: "slug"
+        label: "Identificador (slug)"
+        type: "string"
+        required: true
+      - name: "title"
+        label: "Título do link"
+        type: "string"
+        required: true
+      - name: "link_url"
+        label: "URL de destino"
+        type: "string"
+        required: true
+      - name: "icone"
+        label: "Ícone"
+        description: "Classe Font Awesome, opcional. Ex: fa-solid fa-location-dot"
+        type: "string"
+      - name: "peso"
+        label: "Ordem de exibição"
+        type: "number"
+      - name: "_build"
+        label: false
+        hidden: true
+        type: "object"
+        default:
+          render: "never"
+          list: "local"
+        fields:
+          - name: "render"
+            label: false
+            type: "string"
+            default: "never"
+            hidden: true
+          - name: "list"
+            label: false
+            type: "string"
+            default: "local"
+            hidden: true
+
+  - name: "categorias"
+    label: "Categorias do Catálogo"
+    type: "collection"
+    path: "content/categorias"
+    format: "yaml-frontmatter"
+    view:
+      primary: "title"
+      fields: [title, ativo]
+      default:
+        sort: "title"
+        order: "asc"
+    fields:
+      - name: "title"
+        label: "Nome da categoria"
+        type: "string"
+        required: true
+      - name: "ativo"
+        label: "Categoria ativa"
+        description: "Desligue para esconder todos os produtos dela de uma vez"
+        type: "boolean"
+        default: true
+
+  - name: "produtos"
+    label: "Produtos do Catálogo"
+    type: "collection"
+    path: "content/produtos"
+    format: "yaml-frontmatter"
+    view:
+      primary: "title"
+      fields: [title, categoria, preco, ativo, peso]
+      default:
+        sort: "peso"
+        order: "asc"
+    fields:
+      - name: "slug"
+        label: "Identificador (slug)"
+        type: "string"
+        required: true
+      - name: "title"
+        label: "Nome do produto"
+        type: "string"
+        required: true
+      - name: "preco"
+        label: "Preço cheio"
+        description: "Em reais, ex: 12.50"
+        type: "number"
+        required: true
+      - name: "codigo"
+        label: "Código do produto"
+        description: "Opcional. Ex: 001, 002 — você escolhe"
+        type: "string"
+      - name: "em_promocao"
+        label: "Produto em promoção?"
+        type: "boolean"
+        default: false
+      - name: "preco_promocional"
+        label: "Preço promocional"
+        description: "Em reais, ex: 9.90 — só vale se 'Produto em promoção' estiver ligado"
+        type: "number"
+      - name: "exposicao"
+        label: "Destaque na página inicial"
+        description: "Só vale se o produto estiver em promoção"
+        type: "boolean"
+        default: false
+      - name: "foto"
+        label: "Foto do produto"
+        type: "image"
+      - name: "descricao"
+        label: "Descrição"
+        type: "text"
+      - name: "categoria"
+        label: "Categoria"
+        type: "reference"
+        required: true
+        options:
+          collection: "categorias"
+          value: "{fields.title}"
+          label: "{fields.title}"
+      - name: "estoque_site"
+        label: "Estoque exibido no site"
+        description: "Opcional — deixe em branco se não quiser mostrar. 0 mostra 'Esgotado'"
+        type: "number"
+      - name: "ativo"
+        label: "Produto ativo"
+        description: "Aparece no catálogo quando ligado"
+        type: "boolean"
+        default: true
+      - name: "peso"
+        label: "Ordem de exibição"
+        type: "number"
+      - name: "_build"
+        label: false
+        hidden: true
+        type: "object"
+        default:
+          render: "never"
+          list: "local"
+        fields:
+          - name: "render"
+            label: false
+            type: "string"
+            default: "never"
+            hidden: true
+          - name: "list"
+            label: false
+            type: "string"
+            default: "local"
+            hidden: true
+
+  - name: "galeria"
+    label: "Galeria de Fotos"
+    type: "collection"
+    path: "content/galeria"
+    format: "yaml-frontmatter"
+    view:
+      primary: "legenda"
+      fields: [legenda, peso]
+      default:
+        sort: "peso"
+        order: "asc"
+    fields:
+      - name: "foto"
+        label: "Foto"
+        type: "image"
+        required: true
+      - name: "legenda"
+        label: "Legenda"
+        description: "Opcional"
+        type: "text"
+      - name: "peso"
+        label: "Ordem de exibição"
+        type: "number"
+      - name: "_build"
+        label: false
+        hidden: true
+        type: "object"
+        default:
+          render: "never"
+          list: "local"
+        fields:
+          - name: "render"
+            label: false
+            type: "string"
+            default: "never"
+            hidden: true
+          - name: "list"
+            label: false
+            type: "string"
+            default: "local"
+            hidden: true
