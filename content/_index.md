@@ -12,4 +12,7 @@ tema_cor: marrom
 fundo_ativo: false
 fundo_foto: ""
 fundo_opacidade: 40
+cardapio_ativo: false
+cardapio_titulo: "Tabela de Preços"
+cardapio_subtitulo: ""
 ---
